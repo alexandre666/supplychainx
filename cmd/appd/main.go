@@ -23,7 +23,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 const flagInvCheckPeriod = "inv-check-period"
@@ -50,12 +49,6 @@ func main() {
 	rootCmd.AddCommand(genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome))
 	rootCmd.AddCommand(genutilcli.CollectGenTxsCmd(ctx, cdc, auth.GenesisAccountIterator{}, app.DefaultNodeHome))
 	rootCmd.AddCommand(genutilcli.MigrateGenesisCmd(ctx, cdc))
-	rootCmd.AddCommand(
-		genutilcli.GenTxCmd(
-			ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{},
-			auth.GenesisAccountIterator{}, app.DefaultNodeHome, app.DefaultCLIHome,
-		),
-	)
 	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
 	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
 	rootCmd.AddCommand(flags.NewCompletionCmd(rootCmd, true))
