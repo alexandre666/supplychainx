@@ -8,7 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man v1.0.10 // indirect
 	github.com/etcd-io/bbolt v1.3.3 // indirect
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/ltacker/poa v0.0.0-20200824115641-193ba1b7e073
+	github.com/ltacker/poa v0.0.0-20200826124349-15960e20b36c
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
