@@ -113,9 +113,7 @@ func NewInitApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 
-	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, supply.StoreKey, params.StoreKey, poatypes.StoreKey)
-
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
