@@ -25,7 +25,6 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/ltacker/poapoc/app"
-
 )
 
 func main() {
@@ -47,7 +46,7 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "appcli",
+		Use:   "scxcli",
 		Short: "Command line interface for interacting with appd",
 	}
 
