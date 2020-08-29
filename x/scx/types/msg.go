@@ -1,47 +1,50 @@
 package types
 
 import (
-	_ "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/cosmos/cosmos-sdk/types/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// TODO: Describe your actions, these will implment the interface of `sdk.Msg`
-/*
 // verify interface at compile time
-var _ sdk.Msg = &Msg<Action>{}
+var _ sdk.Msg = &MsgAppendOrganization{}
 
-// Msg<Action> - struct for unjailing jailed validator
-type Msg<Action> struct {
-	ValidatorAddr sdk.ValAddress `json:"address" yaml:"address"` // address of the validator operator
+type MsgAppendOrganization struct {
+	Organization Organization   `json:"organization"`
+	Authority    sdk.ValAddress `json:"aauthority"`
 }
 
-// NewMsg<Action> creates a new Msg<Action> instance
-func NewMsg<Action>(validatorAddr sdk.ValAddress) Msg<Action> {
-	return Msg<Action>{
-		ValidatorAddr: validatorAddr,
+func NewMsgAppendOrganization(organization Organization, authority sdk.ValAddress) MsgAppendOrganization {
+	return MsgAppendOrganization{
+		Organization: organization,
+		Authority:    authority,
 	}
 }
 
-const <action>Const = "<action>"
+const AppendOrganizationConst = "AppendOrganization"
 
 // nolint
-func (msg Msg<Action>) Route() string { return RouterKey }
-func (msg Msg<Action>) Type() string  { return <action>Const }
-func (msg Msg<Action>) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.ValidatorAddr)}
+func (msg MsgAppendOrganization) Route() string { return RouterKey }
+func (msg MsgAppendOrganization) Type() string  { return AppendOrganizationConst }
+func (msg MsgAppendOrganization) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(msg.Authority)}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
-func (msg Msg<Action>) GetSignBytes() []byte {
+func (msg MsgAppendOrganization) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic validity check for the AnteHandler
-func (msg Msg<Action>) ValidateBasic() error {
-	if msg.ValidatorAddr.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing validator address")
+func (msg MsgAppendOrganization) ValidateBasic() error {
+	if msg.Authority.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing authority address")
+	}
+	if msg.Organization.GetAddress().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing organization address")
+	}
+	if msg.Organization.GetName() == "" {
+		return sdkerrors.Wrap(ErrInvalidOrganization, "missing organization name")
 	}
 	return nil
 }
-*/
