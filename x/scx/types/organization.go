@@ -10,6 +10,7 @@ type Organization struct {
 	Address     sdk.AccAddress `json:"address"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
+	Approved    bool           `json:"approved"`
 }
 
 func NewOrganization(address sdk.AccAddress, name, description string) Organization {
@@ -17,6 +18,7 @@ func NewOrganization(address sdk.AccAddress, name, description string) Organizat
 		Address:     address,
 		Name:        name,
 		Description: description,
+		Approved:    true,
 	}
 }
 
@@ -32,19 +34,23 @@ func (o Organization) GetDescription() string {
 	return o.Description
 }
 
+func (o Organization) IsApproved() bool {
+	return o.Approved
+}
+
 // Encoding functions
-func MustMarshalVote(cdc *codec.Codec, o Organization) []byte {
+func MustMarshalOrganization(cdc *codec.Codec, o Organization) []byte {
 	return cdc.MustMarshalBinaryBare(&o)
 }
-func MustUnmarshalVote(cdc *codec.Codec, value []byte) Organization {
-	org, err := UnmarshalVote(cdc, value)
+func MustUnmarshalOrganization(cdc *codec.Codec, value []byte) Organization {
+	org, err := UnmarshalOrganization(cdc, value)
 	if err != nil {
 		panic(err)
 	}
 
 	return org
 }
-func UnmarshalVote(cdc *codec.Codec, value []byte) (o Organization, err error) {
+func UnmarshalOrganization(cdc *codec.Codec, value []byte) (o Organization, err error) {
 	err = cdc.UnmarshalBinaryBare(value, &o)
 	return o, err
 }
