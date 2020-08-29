@@ -169,7 +169,7 @@ func NewInitApp(
 	)
 
 	app.mm.SetOrderBeginBlockers()
-	app.mm.SetOrderEndBlockers() // TODO: Add poa.ModuleName
+	app.mm.SetOrderEndBlockers(poatypes.ModuleName)
 
 	// Order genesis initialization
 	app.mm.SetOrderInitGenesis(
