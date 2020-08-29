@@ -31,3 +31,10 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, poa types.PoaKeeper) Keeper {
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+// Verify if an address is an authority (an authority is in the validator set)
+func (k Keeper) IsAuthority(ctx sdk.Context, addr sdk.ValAddress) bool {
+	_, isInValidatorSet := k.poa.GetValidator(ctx, addr)
+
+	return isInValidatorSet
+}

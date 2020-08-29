@@ -38,6 +38,14 @@ func (o Organization) IsApproved() bool {
 	return o.Approved
 }
 
+func (o *Organization) Approve() {
+	o.Approved = true
+}
+
+func (o *Organization) Relegate() {
+	o.Approved = false
+}
+
 // Encoding functions
 func MustMarshalOrganization(cdc *codec.Codec, o Organization) []byte {
 	return cdc.MustMarshalBinaryBare(&o)

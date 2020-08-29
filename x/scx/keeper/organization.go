@@ -28,7 +28,7 @@ func (k Keeper) SetOrganization(ctx sdk.Context, organization types.Organization
 }
 
 // Get the set of all organizations
-func (k Keeper) GetAllOrganizatios(ctx sdk.Context) (organizations []types.Organization) {
+func (k Keeper) GetAllOrganizations(ctx sdk.Context) (organizations []types.Organization) {
 	store := ctx.KVStore(k.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, types.OrganizationsKey)
