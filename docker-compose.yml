@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  validator_node:
+    build:
+      context: .
+      dockerfile: test_validator.Dockerfile
+    ports:
+      - "26657:26657"
+  node:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    links: 
+      - "validator_node"
+    depends_on:
+      - validator_node
