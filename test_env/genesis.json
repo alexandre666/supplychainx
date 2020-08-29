@@ -1,0 +1,131 @@
+{
+  "genesis_time": "2020-08-28T13:12:32.452135Z",
+  "chain_id": "testnet",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": "1000"
+    },
+    "evidence": {
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000"
+    },
+    "validator": {
+      "pub_key_types": [
+        "ed25519"
+      ]
+    }
+  },
+  "app_hash": "",
+  "app_state": {
+    "poa": {
+      "params": {
+        "max_validators": 15,
+        "quorum": 66
+      },
+      "validators": [
+        {
+          "operator_address": "cosmosvaloper1g7zvz09eyawjqhc95fyjdtj2paqmscfxk767cd",
+          "consensus_pubkey": "cosmosvalconspub1zcjduepqs53kvv8mkecwjl8zxu09fl6x83vnsncxc0ultle7y5ygf70nrqnqsxslwv",
+          "description": {
+            "moniker": "jack"
+          }
+        }
+      ]
+    },
+    "auth": {
+      "params": {
+        "max_memo_characters": "256",
+        "tx_sig_limit": "7",
+        "tx_size_cost_per_byte": "10",
+        "sig_verify_cost_ed25519": "590",
+        "sig_verify_cost_secp256k1": "1000"
+      },
+      "accounts": [
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos1g7zvz09eyawjqhc95fyjdtj2paqmscfxn2wt57",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos1d6ygahd78ftmm9c2u9n9lhu6m3d39l74qwdklr",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos1mmhdzqnrfhk8q0z83jn8ylc727jcewq5x5rm3e",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos1fxkdqzgmnylga0l4q4kreegltgaxhfq8r9dd8a",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos1e45uknzep6ra0l9y9p2097maswh95drrj7usqt",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        }
+      ]
+    },
+    "bank": {
+      "send_enabled": true
+    },
+    "params": null,
+    "supply": {
+      "supply": []
+    }
+  }
+}
