@@ -1,4 +1,4 @@
-module github.com/ltacker/poapoc
+module github.com/ltacker/supplychainx
 
 go 1.13
 
