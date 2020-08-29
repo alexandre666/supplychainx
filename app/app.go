@@ -24,6 +24,9 @@ import (
 	"github.com/ltacker/poa"
 	poakeeper "github.com/ltacker/poa/keeper"
 	poatypes "github.com/ltacker/poa/types"
+	"github.com/ltacker/supplychainx/x/scx"
+	scxkeeper "github.com/ltacker/supplychainx/x/scx/keeper"
+	scxtypes "github.com/ltacker/supplychainx/x/scx/types"
 )
 
 const appName = "scx" // Supply Chain X
@@ -44,6 +47,7 @@ var (
 		params.AppModuleBasic{},
 		supply.AppModuleBasic{},
 		poa.AppModuleBasic{},
+		scx.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -85,6 +89,7 @@ type NewApp struct {
 	supplyKeeper  supply.Keeper
 	paramsKeeper  params.Keeper
 	poaKeeper     poakeeper.Keeper
+	scxKeeper     scxkeeper.Keeper
 
 	// Module Manager
 	mm *module.Manager
@@ -108,7 +113,14 @@ func NewInitApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 
-	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, supply.StoreKey, params.StoreKey, poatypes.StoreKey)
+	keys := sdk.NewKVStoreKeys(
+		bam.MainStoreKey,
+		auth.StoreKey,
+		supply.StoreKey,
+		params.StoreKey,
+		poatypes.StoreKey,
+		scxtypes.StoreKey,
+	)
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
@@ -158,6 +170,12 @@ func NewInitApp(
 		app.subspaces[poatypes.ModuleName],
 	)
 
+	app.scxKeeper = scxkeeper.NewKeeper(
+		app.cdc,
+		keys[scxtypes.StoreKey],
+		app.poaKeeper,
+	)
+
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -165,6 +183,7 @@ func NewInitApp(
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		poa.NewAppModule(app.poaKeeper, app.accountKeeper),
+		scx.NewAppModule(app.scxKeeper, app.poaKeeper),
 	)
 
 	app.mm.SetOrderBeginBlockers()
