@@ -1,22 +1,23 @@
 package types
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // Query endpoints supported by the scx querier
 const (
-	// TODO: Describe query parameters, update <action> with your query
-	// Query<Action>    = "<action>"
+	QueryOrganizations = "organizations"
+	QueryOrganization  = "organization"
 )
 
-/* 
-Below you will be able how to set your own queries:
-
-
-// QueryResList Queries Result Payload for a query
-type QueryResList []string
-
-// implement fmt.Stringer
-func (n QueryResList) String() string {
-	return strings.Join(n[:], "\n")
+// Defines the params for the following queries:
+// - 'custom/scx/organization'
+type QueryOrganizationParams struct {
+	OrganizationAddr sdk.AccAddress
 }
 
-*/
+func NewQueryOrganizationParams(organizationAddr sdk.AccAddress) QueryOrganizationParams {
+	return QueryOrganizationParams{
+		OrganizationAddr: organizationAddr,
+	}
+}
