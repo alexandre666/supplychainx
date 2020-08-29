@@ -24,7 +24,7 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/ltacker/poapoc/app"
+	"github.com/ltacker/supplychainx/app"
 )
 
 func main() {

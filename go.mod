@@ -1,4 +1,4 @@
-module github.com/ltacker/poapoc
+module github.com/ltacker/supplychainx
 
 go 1.13
 
@@ -8,7 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man v1.0.10 // indirect
 	github.com/etcd-io/bbolt v1.3.3 // indirect
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/ltacker/poa v0.0.0-20200828140937-30d9cd7b6466
+	github.com/ltacker/poa v0.0.0-20200829100703-0c9e031d9cec
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
