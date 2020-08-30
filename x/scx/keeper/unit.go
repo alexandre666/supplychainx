@@ -7,46 +7,87 @@ import (
 
 // Append an unit
 func (k Keeper) AppendUnit(ctx sdk.Context, unit types.Unit) (alreadyExist bool) {
-	// TODO
+	// Check unit doesn't exist
+	_, alreadyExist = k.GetUnit(ctx, unit.GetReference())
+	if alreadyExist {
+		return alreadyExist
+	}
+
+	// Set the unit
+	store := ctx.KVStore(k.storeKey)
+	bz := types.MustMarshalUnit(k.cdc, unit)
+	store.Set(types.GetUnitKeyFromReference(unit.GetReference()), bz)
 
 	return false
 }
 
+// Set unit
+func (k Keeper) SetUnit(ctx sdk.Context, unit types.Unit) {
+	store := ctx.KVStore(k.storeKey)
+	bz := types.MustMarshalUnit(k.cdc, unit)
+	store.Set(types.GetUnitKeyFromReference(unit.GetReference()), bz)
+}
+
 // Fetch a unit from its reference
 func (k Keeper) GetUnit(ctx sdk.Context, reference string) (unit types.Unit, found bool) {
-	// TODO
+	store := ctx.KVStore(k.storeKey)
 
+	// Search the value
+	value := store.Get(types.GetUnitKeyFromReference(reference))
+	if value == nil {
+		return unit, false
+	}
+
+	// Return the value
+	unit = types.MustUnmarshalUnit(k.cdc, value)
 	return unit, true
 }
 
 // Get the list of all the holder
 func (k Keeper) GetUnitTrace(ctx sdk.Context, reference string) (trace []sdk.AccAddress, found bool) {
-	// TODO
+	// Check unit exists
+	unit, found := k.GetUnit(ctx, reference)
+	if !found {
+		return trace, found
+	}
 
-	return trace, false
+	// Get the history
+	trace = unit.GetHolderHistrory()
+
+	// Append the current holder to the trace
+	trace = append(trace, unit.GetCurrentHolder())
+
+	return trace, true
 }
 
 // Get all the component units of the unit
 func (k Keeper) GetUnitComponents(ctx sdk.Context, reference string) (components []types.Unit, found bool) {
-	// TODO
+	// Check unit exists
+	unit, found := k.GetUnit(ctx, reference)
+	if !found {
+		return components, found
+	}
 
-	return components, false
-}
+	// Get the component references
+	componentReferences := unit.GetComponents()
 
-// Transfer the ownership of an unit
-func (k Keeper) TransferUnit(ctx sdk.Context, reference string, newHolder sdk.AccAddress) error {
-	// TODO
+	// Get all the components
+	for _, compRef := range componentReferences {
+		comp, found := k.GetUnit(ctx, compRef)
+		if !found {
+			panic("An unit contains a non existing component")
+		}
+		components = append(components, comp)
+	}
 
-	// Check if the unit is already component of another unit
+	// Get all the sub components
+	for _, compRef := range componentReferences {
+		subComps, found := k.GetUnitComponents(ctx, compRef)
+		if !found {
+			panic("An unit contains a non existing component")
+		}
+		components = append(components, subComps...)
+	}
 
-	return nil
-}
-
-// Set the ComponentOf field
-func (k Keeper) SetComponentOf(ctx sdk.Context, reference string, componentOfReference string) error {
-	// TODO
-
-	// Check if the unit is already component of another unit
-
-	return nil
+	return components, true
 }

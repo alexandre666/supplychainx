@@ -98,6 +98,12 @@ func queryProductUnits(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
+	// Get the product count
+
+	// Compute unit reference
+
+	// Retrieve unit
+
 	return nil, nil
 }
 
@@ -110,6 +116,8 @@ func queryUnit(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
+
+	// Get unit
 
 	return nil, nil
 }
@@ -124,6 +132,10 @@ func queryUnitTrace(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, e
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
+	// Get all the holder
+
+	// Retrieve the organization from the address
+
 	return nil, nil
 }
 
@@ -136,6 +148,8 @@ func queryUnitComponents(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]by
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
+
+	// Get all components
 
 	return nil, nil
 }
