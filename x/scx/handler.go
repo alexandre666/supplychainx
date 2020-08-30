@@ -18,6 +18,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgAppendOrganization(ctx, k, msg)
 		case types.MsgChangeOrganizationApproval:
 			return handleMsgChangeOrganizationApproval(ctx, k, msg)
+		case types.MsgCreateProduct:
+			return handleMsgCreateProduct(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -114,6 +116,35 @@ func handleReapproveOrganization(ctx sdk.Context, k keeper.Keeper, msg types.Msg
 			sdk.NewAttribute(types.AttributeKeyAuthority, msg.Authority.String()),
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(types.AttributeKeyOrganizationAddress, organization.GetAddress().String()),
+		),
+	})
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleMsgCreateProduct(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateProduct) (*sdk.Result, error) {
+	// The manufacturer must be approved
+	organization, found := k.GetOrganization(ctx, msg.Product.GetManufacturer())
+	if !found {
+		return nil, types.ErrOrganizationNotFound
+	}
+	if !organization.IsApproved() {
+		return nil, types.ErrOrganizationNotApproved
+	}
+
+	// Append the product
+	exist := k.AppendProduct(ctx, msg.Product)
+	if exist {
+		return nil, types.ErrProductAlreadyExist
+	}
+
+	// Emit event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateProduct,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyManufacturer, msg.Product.Manufacturer.String()),
+			sdk.NewAttribute(types.AttributeKeyProduct, msg.Product.GetName()),
 		),
 	})
 
