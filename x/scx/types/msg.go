@@ -126,11 +126,102 @@ func (msg MsgCreateProduct) GetSignBytes() []byte {
 
 // ValidateBasic validity check for the AnteHandler
 func (msg MsgCreateProduct) ValidateBasic() error {
-	if msg.Product.GetManufacturer().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing manufacturer address")
+	return msg.Product.Validate()
+}
+
+/**
+ * MsgCreateUnit
+ */
+type MsgCreateUnit struct {
+	Product    Product  `json:"product"`
+	Details    string   `json:"details"`
+	Components []string `json:"components"`
+}
+
+func NewMsgCreateUnit(product Product, details string, components []string) MsgCreateUnit {
+	return MsgCreateUnit{
+		Product:    product,
+		Details:    details,
+		Components: components,
 	}
-	if msg.Product.GetName() == "" {
-		return sdkerrors.Wrap(ErrInvalidProduct, "missing product name")
+}
+
+const CreateUnitConst = "CreateUnit"
+
+// nolint
+func (msg MsgCreateUnit) Route() string { return RouterKey }
+func (msg MsgCreateUnit) Type() string  { return CreateUnitConst }
+func (msg MsgCreateUnit) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(msg.Product.GetManufacturer())}
+}
+
+// GetSignBytes gets the bytes for the message signer to sign on
+func (msg MsgCreateUnit) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic validity check for the AnteHandler
+func (msg MsgCreateUnit) ValidateBasic() error {
+	err := msg.Product.Validate()
+	if err != nil {
+		return err
 	}
+
+	// Check all component references has the right length
+	if len(msg.Components) > ComponentsMaxNumber {
+		return sdkerrors.Wrap(ErrInvalidUnit, "too much components")
+	}
+	for _, componentReference := range msg.Components {
+		if len(componentReference) != UnitReferenceLength {
+			return sdkerrors.Wrap(ErrInvalidUnit, "a component reference is incorrect")
+		}
+	}
+
+	return nil
+}
+
+/**
+ * MsgTransferUnit
+ */
+type MsgTransferUnit struct {
+	Unit      Unit           `json:"unit"`
+	NewHolder sdk.AccAddress `json:"new_holder"`
+}
+
+func NewMsgTransferUnit(unit Unit, newHolder sdk.AccAddress) MsgTransferUnit {
+	return MsgTransferUnit{
+		Unit:      unit,
+		NewHolder: newHolder,
+	}
+}
+
+const TransferUnitConst = "TransferUnit"
+
+// nolint
+func (msg MsgTransferUnit) Route() string { return RouterKey }
+func (msg MsgTransferUnit) Type() string  { return TransferUnitConst }
+func (msg MsgTransferUnit) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(msg.Unit.GetCurrentHolder())}
+}
+
+// GetSignBytes gets the bytes for the message signer to sign on
+func (msg MsgTransferUnit) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic validity check for the AnteHandler
+func (msg MsgTransferUnit) ValidateBasic() error {
+	err := msg.Unit.Validate()
+	if err != nil {
+		return err
+	}
+
+	// Cannot transfer to himself
+	if msg.Unit.GetCurrentHolder().Equals(msg.NewHolder) {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "cannot transfer to oneself")
+	}
+
 	return nil
 }
