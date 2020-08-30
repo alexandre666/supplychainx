@@ -9,6 +9,9 @@ import (
 var _ sdk.Msg = &MsgAppendOrganization{}
 var _ sdk.Msg = &MsgChangeOrganizationApproval{}
 
+/**
+ * MsgAppendOrganization
+ */
 type MsgAppendOrganization struct {
 	Organization Organization   `json:"organization"`
 	Authority    sdk.ValAddress `json:"authority"`
@@ -50,6 +53,9 @@ func (msg MsgAppendOrganization) ValidateBasic() error {
 	return nil
 }
 
+/**
+ * MsgChangeOrganizationApproval
+ */
 type MsgChangeOrganizationApproval struct {
 	Organization sdk.AccAddress `json:"organization"`
 	Authority    sdk.ValAddress `json:"authority"`
@@ -64,11 +70,11 @@ func NewMsgChangeOrganizationApproval(organization sdk.AccAddress, authority sdk
 	}
 }
 
-const ChangeOrganizationApproval = "ChangeOrganizationApproval"
+const ChangeOrganizationApprovalConst = "ChangeOrganizationApproval"
 
 // nolint
 func (msg MsgChangeOrganizationApproval) Route() string { return RouterKey }
-func (msg MsgChangeOrganizationApproval) Type() string  { return ChangeOrganizationApproval }
+func (msg MsgChangeOrganizationApproval) Type() string  { return ChangeOrganizationApprovalConst }
 func (msg MsgChangeOrganizationApproval) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.Authority)}
 }
@@ -86,6 +92,45 @@ func (msg MsgChangeOrganizationApproval) ValidateBasic() error {
 	}
 	if msg.Organization.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing organization address")
+	}
+	return nil
+}
+
+/**
+ * MsgCreateProduct
+ */
+type MsgCreateProduct struct {
+	Product Product `json:"product"`
+}
+
+func NewMsgCreateProduct(product Product) MsgCreateProduct {
+	return MsgCreateProduct{
+		Product: product,
+	}
+}
+
+const CreateProductConst = "CreateProduct"
+
+// nolint
+func (msg MsgCreateProduct) Route() string { return RouterKey }
+func (msg MsgCreateProduct) Type() string  { return CreateProductConst }
+func (msg MsgCreateProduct) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(msg.Product.GetManufacturer())}
+}
+
+// GetSignBytes gets the bytes for the message signer to sign on
+func (msg MsgCreateProduct) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic validity check for the AnteHandler
+func (msg MsgCreateProduct) ValidateBasic() error {
+	if msg.Product.GetManufacturer().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing manufacturer address")
+	}
+	if msg.Product.GetName() == "" {
+		return sdkerrors.Wrap(ErrInvalidProduct, "missing product name")
 	}
 	return nil
 }

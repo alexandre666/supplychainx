@@ -114,3 +114,52 @@ func TestHandleMsgChangeOrganizationApproval(t *testing.T) {
 		t.Errorf("ReapproveOrganization should reapprove organization")
 	}
 }
+
+func TestHandleMsgCreateProduct(t *testing.T) {
+	ctx, scxKeeper, _ := scx.MockContext()
+	notAnOrganization := scx.MockAccAddress()
+	organization := scx.MockOrganization()
+
+	handler := scx.NewHandler(scxKeeper)
+
+	// Create Organization
+	scxKeeper.SetOrganization(ctx, organization)
+
+	// A non organization cannot create a product
+	product := types.NewProduct(notAnOrganization, "xphone", "A revolutionary phone")
+	msg := types.NewMsgCreateProduct(product)
+	_, err := handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotFound.Error() {
+		t.Errorf("MsgCreateProduct not existing organization, error should be %v, got %v", types.ErrOrganizationNotFound.Error(), err.Error())
+	}
+
+	// An approved organization can create a product
+	product = types.NewProduct(organization.GetAddress(), "xphone", "A revolutionary phone")
+	msg = types.NewMsgCreateProduct(product)
+	_, err = handler(ctx, msg)
+	if err != nil {
+		t.Errorf("MsgCreateProduct existing organization, unexpected error %v", err.Error())
+	}
+	_, found := scxKeeper.GetProduct(ctx, product.GetName())
+	if !found {
+		t.Errorf("MsgCreateProduct, created product not found")
+	}
+
+	// Cannot create an already existing product
+	product = types.NewProduct(organization.GetAddress(), "xphone", "A copy of the revolutionary phone")
+	msg = types.NewMsgCreateProduct(product)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrProductAlreadyExist.Error() {
+		t.Errorf("MsgCreateProduct existing product, error should be %v, got %v", types.ErrProductAlreadyExist.Error(), err.Error())
+	}
+
+	// A relegated organization cannot create new products
+	organization.Relegate()
+	scxKeeper.SetOrganization(ctx, organization)
+	product2 := types.NewProduct(organization.GetAddress(), "xphone2", "A new revolutionary phone")
+	msg = types.NewMsgCreateProduct(product2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotApproved.Error() {
+		t.Errorf("MsgCreateProduct from relegated organization, error should be %v, got %v", types.ErrOrganizationNotApproved.Error(), err.Error())
+	}
+}

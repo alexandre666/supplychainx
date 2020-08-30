@@ -85,6 +85,7 @@ func MockValidator() (poatypes.Validator, string) {
 	return validator, consPubKey
 }
 
+// A misc organization
 func MockOrganization() types.Organization {
 	return types.NewOrganization(MockAccAddress(), "acme", "A company making everything")
 }

@@ -32,6 +32,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdAppendOrganization(cdc),
 		GetCmdRelegateOrganization(cdc),
 		GetCmdReapproveOrganization(cdc),
+		GetCmdCreateProduct(cdc),
 	)...)
 
 	return scxTxCmd
@@ -149,4 +150,41 @@ func GetCmdReapproveOrganization(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},
 	}
+}
+
+// Create a new product from an approved organization
+func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-product [product-name]",
+		Short: "Create a new product",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			// The manufacturer is the sender
+			accAddress := cliCtx.GetFromAddress()
+			if accAddress.Empty() {
+				return fmt.Errorf("Account address empty")
+			}
+
+			description, _ := cmd.Flags().GetString(FlagOrganizationDescription)
+
+			// Create product
+			product := types.NewProduct(accAddress, args[0], description)
+
+			msg := types.NewMsgCreateProduct(product)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	cmd.Flags().AddFlagSet(FlagSetOrganizationDescriptionCreate())
+
+	return cmd
 }
