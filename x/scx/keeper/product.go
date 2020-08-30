@@ -36,6 +36,25 @@ func (k Keeper) GetProduct(ctx sdk.Context, name string) (product types.Product,
 	return product, true
 }
 
+// Increase the count of a product
+func (k Keeper) IncreaseProductCount(ctx sdk.Context, name string) (found bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	// Search the value
+	value := store.Get(types.GetProductKey(name))
+	if value == nil {
+		return false
+	}
+
+	// Increase the unit count and push back the product
+	product := types.MustUnmarshalProduct(k.cdc, value)
+	product.IncreaseUnit()
+	bz := types.MustMarshalProduct(k.cdc, product)
+	store.Set(types.GetProductKey(name), bz)
+
+	return true
+}
+
 // Retrieve all products
 func (k Keeper) GetAllProducts(ctx sdk.Context) (products []types.Product) {
 	store := ctx.KVStore(k.storeKey)

@@ -10,6 +10,7 @@ type Product struct {
 	Name         string         `json:"name"`
 	Description  string         `json:"description"`
 	Manufacturer sdk.AccAddress `json:"manufacturer"`
+	UnitCount    uint64         `json:"count"`
 }
 
 func NewProduct(m sdk.AccAddress, name, description string) Product {
@@ -17,6 +18,7 @@ func NewProduct(m sdk.AccAddress, name, description string) Product {
 		Manufacturer: m,
 		Name:         name,
 		Description:  description,
+		UnitCount:    0,
 	}
 }
 
@@ -30,6 +32,14 @@ func (p Product) GetName() string {
 
 func (p Product) GetDescription() string {
 	return p.Description
+}
+
+func (p Product) GetUnitCount() uint64 {
+	return p.UnitCount
+}
+
+func (p *Product) IncreaseUnit() {
+	p.UnitCount += 1
 }
 
 // Encoding functions
