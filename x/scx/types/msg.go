@@ -115,7 +115,7 @@ const CreateProductConst = "CreateProduct"
 func (msg MsgCreateProduct) Route() string { return RouterKey }
 func (msg MsgCreateProduct) Type() string  { return CreateProductConst }
 func (msg MsgCreateProduct) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Product.GetManufacturer())}
+	return []sdk.AccAddress{msg.Product.GetManufacturer()}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -126,11 +126,115 @@ func (msg MsgCreateProduct) GetSignBytes() []byte {
 
 // ValidateBasic validity check for the AnteHandler
 func (msg MsgCreateProduct) ValidateBasic() error {
-	if msg.Product.GetManufacturer().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing manufacturer address")
+	return msg.Product.Validate()
+}
+
+/**
+ * MsgCreateUnit
+ */
+type MsgCreateUnit struct {
+	ProductName  string         `json:"product_name"`
+	Manufacturer sdk.AccAddress `json:"manufacturer"`
+	Details      string         `json:"details"`
+	Components   []string       `json:"components"`
+}
+
+func NewMsgCreateUnit(productName string, manufacturer sdk.AccAddress, details string, components []string) MsgCreateUnit {
+	return MsgCreateUnit{
+		ProductName:  productName,
+		Manufacturer: manufacturer,
+		Details:      details,
+		Components:   components,
 	}
-	if msg.Product.GetName() == "" {
-		return sdkerrors.Wrap(ErrInvalidProduct, "missing product name")
+}
+
+const CreateUnitConst = "CreateUnit"
+
+// nolint
+func (msg MsgCreateUnit) Route() string { return RouterKey }
+func (msg MsgCreateUnit) Type() string  { return CreateUnitConst }
+func (msg MsgCreateUnit) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Manufacturer}
+}
+
+// GetSignBytes gets the bytes for the message signer to sign on
+func (msg MsgCreateUnit) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic validity check for the AnteHandler
+func (msg MsgCreateUnit) ValidateBasic() error {
+	if msg.Manufacturer.Empty() {
+		return sdkerrors.Wrap(ErrInvalidUnit, "no manufacturer")
 	}
+	if msg.ProductName == "" {
+		return sdkerrors.Wrap(ErrInvalidUnit, "no product name")
+	}
+
+	// Check all component references has the right length
+	if len(msg.Components) > ComponentsMaxNumber {
+		return sdkerrors.Wrap(ErrInvalidUnit, "too much components")
+	}
+	for _, componentReference := range msg.Components {
+		if len(componentReference) != UnitReferenceLength {
+			return sdkerrors.Wrap(ErrInvalidUnit, "a component reference is incorrect")
+		}
+	}
+
+	return nil
+}
+
+/**
+ * MsgTransferUnit
+ */
+type MsgTransferUnit struct {
+	UnitReference string         `json:"unit_reference"`
+	Holder        sdk.AccAddress `json:"holder"`
+	NewHolder     sdk.AccAddress `json:"new_holder"`
+}
+
+func NewMsgTransferUnit(unitReference string, currentHolder sdk.AccAddress, newHolder sdk.AccAddress) MsgTransferUnit {
+	return MsgTransferUnit{
+		UnitReference: unitReference,
+		Holder:        currentHolder,
+		NewHolder:     newHolder,
+	}
+}
+
+const TransferUnitConst = "TransferUnit"
+
+// nolint
+func (msg MsgTransferUnit) Route() string { return RouterKey }
+func (msg MsgTransferUnit) Type() string  { return TransferUnitConst }
+func (msg MsgTransferUnit) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Holder}
+}
+
+// GetSignBytes gets the bytes for the message signer to sign on
+func (msg MsgTransferUnit) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic validity check for the AnteHandler
+func (msg MsgTransferUnit) ValidateBasic() error {
+	if len(msg.UnitReference) != UnitReferenceLength {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "invalid reference")
+	}
+
+	// No empty address
+	if msg.Holder.Empty() {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "no holder")
+	}
+	if msg.NewHolder.Empty() {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "no new holder")
+	}
+
+	// Cannot transfer to himself
+	if msg.Holder.Equals(msg.NewHolder) {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "cannot transfer to oneself")
+	}
+
 	return nil
 }

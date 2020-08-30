@@ -163,3 +163,140 @@ func TestHandleMsgCreateProduct(t *testing.T) {
 		t.Errorf("MsgCreateProduct from relegated organization, error should be %v, got %v", types.ErrOrganizationNotApproved.Error(), err.Error())
 	}
 }
+
+func TestHandleMsgCreateUnit(t *testing.T) {
+	ctx, scxKeeper, _ := scx.MockContext()
+	organization := scx.MockOrganization()
+	orgAddress := organization.GetAddress()
+	product := types.NewProduct(orgAddress, "xphone", "A revolutionary phone")
+	productName := product.GetName()
+	handler := scx.NewHandler(scxKeeper)
+
+	scxKeeper.AppendProduct(ctx, product)
+
+	// Cannot create if the manufacturer doesn't exist
+	notAnOrganization := scx.MockAccAddress()
+	msg := types.NewMsgCreateUnit(productName, notAnOrganization, "", []string{})
+	_, err := handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotFound.Error() {
+		t.Errorf("MsgCreateUnit with non existing manufacturer should fail")
+	}
+
+	// Cannot create if the manufacturer is relegated
+	organization.Relegate()
+	scxKeeper.SetOrganization(ctx, organization)
+	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotApproved.Error() {
+		t.Errorf("MsgCreateUnit with relegated manufacturer should fail with %v, got %v", types.ErrOrganizationNotApproved, err)
+	}
+
+	organization.Approve()
+	scxKeeper.SetOrganization(ctx, organization)
+
+	// Cannot create if the manufacturer is not the manufacturer of the product
+	otherProduct := types.NewProduct(notAnOrganization, "toast", "")
+	scxKeeper.AppendProduct(ctx, otherProduct)
+	msg = types.NewMsgCreateUnit(otherProduct.GetName(), orgAddress, "", []string{})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrInvalidOrganization.Error() {
+		t.Errorf("MsgCreateUnit with invalid manufacturer should fail")
+	}
+
+	// Cannot create if the product doesn't exist
+	inexistantProduct := types.NewProduct(orgAddress, "nothing", "")
+	msg = types.NewMsgCreateUnit(inexistantProduct.GetName(), orgAddress, "", []string{})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrProductNotFound.Error() {
+		t.Errorf("MsgCreateUnit with non existing product should fail")
+	}
+
+	// Cannot create if a component doesn't exist
+	inexistantRef := "aaaaaaaaaaaaaaaa"
+	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{inexistantRef})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrUnitNotFound.Error() {
+		t.Errorf("MsgCreateUnit with non existing component should fail")
+	}
+
+	// Cannot create if a component is not owned
+	notOwnedUnit := scx.MockUnit(otherProduct, 100, []string{})
+	scxKeeper.SetUnit(ctx, notOwnedUnit)
+	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{notOwnedUnit.GetReference()})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrComponentNotOwned.Error() {
+		t.Errorf("MsgCreateUnit with not owned component should fail")
+	}
+
+	// Cannot create if a component is already component of another unit
+	unitAlreadyComponent := scx.MockUnit(product, 100, []string{})
+	unitAlreadyComponent.ComponentOf = "aaaaaaaaaaaaaaaa"
+	scxKeeper.SetUnit(ctx, unitAlreadyComponent)
+	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{unitAlreadyComponent.GetReference()})
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrUnitComponentOfAnotherUnit.Error() {
+		t.Errorf("MsgCreateUnit with a component already used should fail")
+	}
+
+	// Can create a new unit
+	component1 := scx.MockUnit(product, 101, []string{})
+	component2 := scx.MockUnit(product, 102, []string{})
+	component3 := scx.MockUnit(product, 103, []string{})
+	scxKeeper.SetUnit(ctx, component1)
+	scxKeeper.SetUnit(ctx, component2)
+	scxKeeper.SetUnit(ctx, component3)
+	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{
+		component1.GetReference(),
+		component2.GetReference(),
+		component3.GetReference(),
+	})
+	result, err := handler(ctx, msg)
+	if err != nil {
+		t.Errorf("MsgCreateUnit unexpected error creating a unit: %v", err)
+	}
+	var reference string
+	types.ModuleCdc.MustUnmarshalBinaryLengthPrefixed(result.Data, &reference)
+
+	_, found := scxKeeper.GetUnit(ctx, reference)
+	if !found {
+		t.Errorf("MsgCreateUnit didn't create a unit of reference: %v", reference)
+	}
+
+	// The components' "componentOf" field is updated
+	component1, _ = scxKeeper.GetUnit(ctx, component1.GetReference())
+	component2, _ = scxKeeper.GetUnit(ctx, component2.GetReference())
+	component3, _ = scxKeeper.GetUnit(ctx, component3.GetReference())
+	if component1.GetComponentOf() != reference || component2.GetComponentOf() != reference || component3.GetComponentOf() != reference {
+		t.Errorf("MsgCreateUnit didn't update ComponentOf field of the components")
+	}
+
+	// The product count is incremented
+	product, _ = scxKeeper.GetProduct(ctx, productName)
+	if product.GetUnitCount() != 1 {
+		t.Errorf("MsgCreateUnit should increase unit number of the product")
+	}
+}
+
+func TestHandleMsgTransferUnit(t *testing.T) {
+	// TODO
+
+	// Cannot transfer if the holder doesn't exist
+
+	// Cannot transfer if the holder is relegated
+
+	// Cannot transfer if the new holder doesn't exist
+
+	// Cannot transfer if the new holder is relegated
+
+	// Cannot transfer if the unit doesn't exist
+
+	// Cannot transfer if the holder doesn't own the unit
+
+	// Cannot transfer if the unit is a component of another unit
+
+	// Can transfer the unit
+
+	// The holder is update
+
+	// The holder history is updated
+}

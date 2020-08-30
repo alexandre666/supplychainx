@@ -20,6 +20,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgChangeOrganizationApproval(ctx, k, msg)
 		case types.MsgCreateProduct:
 			return handleMsgCreateProduct(ctx, k, msg)
+		case types.MsgCreateUnit:
+			return handleMsgCreateUnit(ctx, k, msg)
+		case types.MsgTransferUnit:
+			return handleMsgTransferUnit(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -147,6 +151,100 @@ func handleMsgCreateProduct(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreat
 			sdk.NewAttribute(types.AttributeKeyProduct, msg.Product.GetName()),
 		),
 	})
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleMsgCreateUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateUnit) (*sdk.Result, error) {
+	// The manufacturer must be approved
+	organization, found := k.GetOrganization(ctx, msg.Manufacturer)
+	if !found {
+		return nil, types.ErrOrganizationNotFound
+	}
+	if !organization.IsApproved() {
+		return nil, types.ErrOrganizationNotApproved
+	}
+
+	// Check the product exists
+	product, found := k.GetProduct(ctx, msg.ProductName)
+	if !found {
+		return nil, types.ErrProductNotFound
+	}
+
+	// Check the organization is the manufacturer of the product
+	if !product.GetManufacturer().Equals(msg.Manufacturer) {
+		return nil, types.ErrInvalidOrganization
+	}
+
+	// Compute the reference of the product
+	unitNumber := product.GetUnitCount()
+	reference, err := types.GetUnitReferenceFromProductAndUnitNumber(msg.ProductName, uint(unitNumber))
+	if err != nil {
+		return nil, types.ErrInvalidUnit
+	}
+
+	// Check all components exist, the manufacturer own them and they are not already "component of"
+	for _, compRef := range msg.Components {
+		// Check the component exists
+		component, found := k.GetUnit(ctx, compRef)
+		if !found {
+			return nil, types.ErrUnitNotFound
+		}
+
+		// Check the manufacturer own the unit
+		if !component.GetCurrentHolder().Equals(msg.Manufacturer) {
+			return nil, types.ErrComponentNotOwned
+		}
+
+		if component.IsComponentOf() {
+			return nil, types.ErrUnitComponentOfAnotherUnit
+		}
+
+		// The the "component of" field of the component
+		component.ComponentOf = reference
+		k.SetUnit(ctx, component)
+	}
+
+	// Create the unit
+	unit := types.NewUnit(reference, product, msg.Details, msg.Components)
+	alreadyExist := k.AppendUnit(ctx, unit)
+	if alreadyExist {
+		// Panic if the unit already exists (this should never be the case since the reference is computed for the unit number)
+		panic(fmt.Sprintf("The unit %v already exists", reference))
+	}
+
+	// Increment the count of unit of the product
+	k.IncreaseProductCount(ctx, msg.ProductName)
+
+	// Emit event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateProduct,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyReference, reference),
+			sdk.NewAttribute(types.AttributeKeyProduct, msg.ProductName),
+		),
+	})
+
+	// Return the reference
+	return &sdk.Result{
+		Data:   types.ModuleCdc.MustMarshalBinaryLengthPrefixed(reference),
+		Events: ctx.EventManager().Events(),
+	}, nil
+}
+
+func handleMsgTransferUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferUnit) (*sdk.Result, error) {
+	// TODO
+
+	// Check the holder exists and is approved
+
+	// Check the new holder exists and is approved
+
+	// Check the unit exists, the holder owns it and it is not "component of"
+
+	// Update new hodler
+
+	// Emit events
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

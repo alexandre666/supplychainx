@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -33,6 +34,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdRelegateOrganization(cdc),
 		GetCmdReapproveOrganization(cdc),
 		GetCmdCreateProduct(cdc),
+		GetCmdCreateUnit(cdc),
+		GetCmdTransferUnit(cdc),
 	)...)
 
 	return scxTxCmd
@@ -187,4 +190,79 @@ func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().AddFlagSet(FlagSetOrganizationDescriptionCreate())
 
 	return cmd
+}
+
+// Create a new unit of an existing product
+func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-unit [product-name] [components] [flags]",
+		Short: "Create a new unit of a product",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			// The manufacturer is the sender
+			accAddress := cliCtx.GetFromAddress()
+			if accAddress.Empty() {
+				return fmt.Errorf("Account address empty")
+			}
+
+			// Get detail from flag
+			details, _ := cmd.Flags().GetString(FlagUnitDetails)
+
+			// Product
+			product := args[0]
+
+			// Get list of components
+			components := strings.Split(args[1], ",")
+
+			msg := types.NewMsgCreateUnit(product, accAddress, details, components)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	cmd.Flags().AddFlagSet(FlagSetUnitDetailsCreate())
+
+	return cmd
+}
+
+// Transfer a product unit to a new organization
+// TODO
+func GetCmdTransferUnit(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "transfer-unit [unit-reference][new-holder]",
+		Short: "Transer a unit to a new organization",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			// The manufacturer is the sender
+			accAddress := cliCtx.GetFromAddress()
+			if accAddress.Empty() {
+				return fmt.Errorf("Account address empty")
+			}
+
+			description, _ := cmd.Flags().GetString(FlagOrganizationDescription)
+
+			// Create product
+			product := types.NewProduct(accAddress, args[0], description)
+
+			msg := types.NewMsgCreateProduct(product)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
 }

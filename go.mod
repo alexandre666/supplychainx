@@ -3,6 +3,7 @@ module github.com/ltacker/supplychainx
 go 1.13
 
 require (
+	github.com/Workiva/go-datastructures v1.0.52
 	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
 	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/cpuguy83/go-md2man v1.0.10 // indirect

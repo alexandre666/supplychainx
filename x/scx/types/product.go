@@ -3,9 +3,10 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// Describes a produtct
+// Describes a product
 type Product struct {
 	Name         string         `json:"name"`
 	Description  string         `json:"description"`
@@ -40,6 +41,17 @@ func (p Product) GetUnitCount() uint64 {
 
 func (p *Product) IncreaseUnit() {
 	p.UnitCount += 1
+}
+
+func (p Product) Validate() error {
+	if p.GetManufacturer().Empty() {
+		return sdkerrors.Wrap(ErrInvalidProduct, "missing manufacturer")
+	}
+	if p.GetName() == "" {
+		return sdkerrors.Wrap(ErrInvalidProduct, "missing product name")
+	}
+
+	return nil
 }
 
 // Encoding functions

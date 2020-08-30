@@ -31,7 +31,7 @@ func TestGetOrganization(t *testing.T) {
 	}
 }
 
-func TestGetAllValidators(t *testing.T) {
+func TestGetAllOrganizations(t *testing.T) {
 	ctx, scxKeeper, _ := scx.MockContext()
 	organization1 := scx.MockOrganization()
 	organization2 := scx.MockOrganization()
