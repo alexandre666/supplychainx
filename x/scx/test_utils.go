@@ -103,3 +103,9 @@ func MockAccAddress() sdk.AccAddress {
 	addr := pk.Address()
 	return sdk.AccAddress(addr)
 }
+
+// Create a mock unit
+func MockUnit() types.Unit {
+	// TODO
+	return types.Unit{}
+}

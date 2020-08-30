@@ -20,6 +20,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgChangeOrganizationApproval(ctx, k, msg)
 		case types.MsgCreateProduct:
 			return handleMsgCreateProduct(ctx, k, msg)
+		case types.MsgCreateUnit:
+			return handleMsgCreateUnit(ctx, k, msg)
+		case types.MsgTransferUnit:
+			return handleMsgTransferUnit(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -147,6 +151,43 @@ func handleMsgCreateProduct(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreat
 			sdk.NewAttribute(types.AttributeKeyProduct, msg.Product.GetName()),
 		),
 	})
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleMsgCreateUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateUnit) (*sdk.Result, error) {
+	// TODO
+
+	// Check the manufacturer exists and is approved
+
+	// Check the product exists
+
+	// Check all components exist, the manufacturer own them and they are not already "component of"
+
+	// The the "component of" field of the component
+
+	// Compute unit reference and store it
+
+	// Increment product count
+
+	// Emit event
+
+	// RETURN THE REFERENCE AS RETURN VALUE
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleMsgTransferUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferUnit) (*sdk.Result, error) {
+	// TODO
+
+	// Check the holder exists and is approved
+
+	// Check the new holder exists and is approved
+
+	// Check the unit exists, the holder owns it and it is not "component of"
+
+	// Update new hodler
+
+	// Emit events
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

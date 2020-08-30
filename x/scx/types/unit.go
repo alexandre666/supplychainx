@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -125,4 +126,21 @@ func GetUnitReferenceFromProductAndUnitNumber(productName string, unitNumber uin
 	byteLength := UnitReferenceLength / 2 // One byte = two chars
 	referenceBytes := hash[:byteLength]
 	return hex.EncodeToString(referenceBytes), nil
+}
+
+// Encoding functions
+func MustMarshalUnit(cdc *codec.Codec, u Unit) []byte {
+	return cdc.MustMarshalBinaryBare(&u)
+}
+func MustUnmarshalUnit(cdc *codec.Codec, value []byte) Unit {
+	u, err := UnmarshalUnit(cdc, value)
+	if err != nil {
+		panic(u)
+	}
+
+	return u
+}
+func UnmarshalUnit(cdc *codec.Codec, value []byte) (u Unit, err error) {
+	err = cdc.UnmarshalBinaryBare(value, &u)
+	return u, err
 }

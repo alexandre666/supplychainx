@@ -163,3 +163,49 @@ func TestHandleMsgCreateProduct(t *testing.T) {
 		t.Errorf("MsgCreateProduct from relegated organization, error should be %v, got %v", types.ErrOrganizationNotApproved.Error(), err.Error())
 	}
 }
+
+func TestHandleMsgCreateUnit(t *testing.T) {
+	// TODO
+
+	// Cannot create if the manufacturer doesn't exist
+
+	// Cannot create if the manufacturer is relegated
+
+	// Cannot create if the product doesn't exist
+
+	// Cannot create if a component doesn't exist
+
+	// Cannot create if a component is not owned
+
+	// Cannot create if a component is already component of another unit
+
+	// Create a new unit
+
+	// The components' "componentOf" field is updated
+
+	// The product count is incremented
+}
+
+func TestHandleMsgTransferUnit(t *testing.T) {
+	// TODO
+
+	// Cannot transfer if the holder doesn't exist
+
+	// Cannot transfer if the holder is relegated
+
+	// Cannot transfer if the new holder doesn't exist
+
+	// Cannot transfer if the new holder is relegated
+
+	// Cannot transfer if the unit doesn't exist
+
+	// Cannot transfer if the holder doesn't own the unit
+
+	// Cannot transfer if the unit is a component of another unit
+
+	// Can transfer the unit
+
+	// The holder is update
+
+	// The holder history is updated
+}

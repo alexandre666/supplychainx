@@ -115,7 +115,7 @@ const CreateProductConst = "CreateProduct"
 func (msg MsgCreateProduct) Route() string { return RouterKey }
 func (msg MsgCreateProduct) Type() string  { return CreateProductConst }
 func (msg MsgCreateProduct) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Product.GetManufacturer())}
+	return []sdk.AccAddress{msg.Product.GetManufacturer()}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -133,16 +133,18 @@ func (msg MsgCreateProduct) ValidateBasic() error {
  * MsgCreateUnit
  */
 type MsgCreateUnit struct {
-	Product    Product  `json:"product"`
-	Details    string   `json:"details"`
-	Components []string `json:"components"`
+	ProductName  string         `json:"product_name"`
+	Manufacturer sdk.AccAddress `json:"manufacturer"`
+	Details      string         `json:"details"`
+	Components   []string       `json:"components"`
 }
 
-func NewMsgCreateUnit(product Product, details string, components []string) MsgCreateUnit {
+func NewMsgCreateUnit(productName string, manufacturer sdk.AccAddress, details string, components []string) MsgCreateUnit {
 	return MsgCreateUnit{
-		Product:    product,
-		Details:    details,
-		Components: components,
+		ProductName:  productName,
+		Manufacturer: manufacturer,
+		Details:      details,
+		Components:   components,
 	}
 }
 
@@ -152,7 +154,7 @@ const CreateUnitConst = "CreateUnit"
 func (msg MsgCreateUnit) Route() string { return RouterKey }
 func (msg MsgCreateUnit) Type() string  { return CreateUnitConst }
 func (msg MsgCreateUnit) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Product.GetManufacturer())}
+	return []sdk.AccAddress{msg.Manufacturer}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -163,9 +165,11 @@ func (msg MsgCreateUnit) GetSignBytes() []byte {
 
 // ValidateBasic validity check for the AnteHandler
 func (msg MsgCreateUnit) ValidateBasic() error {
-	err := msg.Product.Validate()
-	if err != nil {
-		return err
+	if msg.Manufacturer.Empty() {
+		return sdkerrors.Wrap(ErrInvalidUnit, "no manufacturer")
+	}
+	if msg.ProductName == "" {
+		return sdkerrors.Wrap(ErrInvalidUnit, "no product name")
 	}
 
 	// Check all component references has the right length
@@ -185,14 +189,16 @@ func (msg MsgCreateUnit) ValidateBasic() error {
  * MsgTransferUnit
  */
 type MsgTransferUnit struct {
-	Unit      Unit           `json:"unit"`
-	NewHolder sdk.AccAddress `json:"new_holder"`
+	UnitReference string         `json:"unit_reference"`
+	Holder        sdk.AccAddress `json:"holder"`
+	NewHolder     sdk.AccAddress `json:"new_holder"`
 }
 
-func NewMsgTransferUnit(unit Unit, newHolder sdk.AccAddress) MsgTransferUnit {
+func NewMsgTransferUnit(unitReference string, currentHolder sdk.AccAddress, newHolder sdk.AccAddress) MsgTransferUnit {
 	return MsgTransferUnit{
-		Unit:      unit,
-		NewHolder: newHolder,
+		UnitReference: unitReference,
+		Holder:        currentHolder,
+		NewHolder:     newHolder,
 	}
 }
 
@@ -202,7 +208,7 @@ const TransferUnitConst = "TransferUnit"
 func (msg MsgTransferUnit) Route() string { return RouterKey }
 func (msg MsgTransferUnit) Type() string  { return TransferUnitConst }
 func (msg MsgTransferUnit) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Unit.GetCurrentHolder())}
+	return []sdk.AccAddress{msg.Holder}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -213,13 +219,20 @@ func (msg MsgTransferUnit) GetSignBytes() []byte {
 
 // ValidateBasic validity check for the AnteHandler
 func (msg MsgTransferUnit) ValidateBasic() error {
-	err := msg.Unit.Validate()
-	if err != nil {
-		return err
+	if len(msg.UnitReference) != UnitReferenceLength {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "invalid reference")
+	}
+
+	// No empty address
+	if msg.Holder.Empty() {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "no holder")
+	}
+	if msg.NewHolder.Empty() {
+		return sdkerrors.Wrap(ErrInvalidTransfer, "no new holder")
 	}
 
 	// Cannot transfer to himself
-	if msg.Unit.GetCurrentHolder().Equals(msg.NewHolder) {
+	if msg.Holder.Equals(msg.NewHolder) {
 		return sdkerrors.Wrap(ErrInvalidTransfer, "cannot transfer to oneself")
 	}
 

@@ -21,6 +21,21 @@ func NewQuerier(k Keeper) sdk.Querier {
 		case types.QueryOrganization:
 			return queryOrganization(ctx, req, k)
 
+		case types.QueryProduct:
+			return queryProduct(ctx, req, k)
+
+		case types.QueryProductUnits:
+			return queryProductUnits(ctx, req, k)
+
+		case types.QueryUnit:
+			return queryUnit(ctx, req, k)
+
+		case types.QueryUnitTrace:
+			return queryUnitTrace(ctx, req, k)
+
+		case types.QueryUnitComponents:
+			return queryUnitComponents(ctx, req, k)
+
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown scx query endpoint")
 		}
@@ -58,4 +73,69 @@ func queryOrganization(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 	}
 
 	return res, nil
+}
+
+func queryProduct(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	// TODO
+	var params types.QueryProductParams
+
+	// Unmarschal request
+	err := types.ModuleCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	return nil, nil
+}
+
+func queryProductUnits(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	// TODO
+	var params types.QueryProductParams
+
+	// Unmarschal request
+	err := types.ModuleCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	return nil, nil
+}
+
+func queryUnit(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	// TODO
+	var params types.QueryUnitParams
+
+	// Unmarschal request
+	err := types.ModuleCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	return nil, nil
+}
+
+func queryUnitTrace(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	// TODO
+	var params types.QueryUnitParams
+
+	// Unmarschal request
+	err := types.ModuleCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	return nil, nil
+}
+
+func queryUnitComponents(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	// TODO
+	var params types.QueryUnitParams
+
+	// Unmarschal request
+	err := types.ModuleCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	return nil, nil
 }

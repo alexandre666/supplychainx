@@ -29,6 +29,11 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		flags.GetCommands(
 			GetCmdQueryOrganization(queryRoute, cdc),
 			GetCmdQueryOrganizations(queryRoute, cdc),
+			GetCmdQueryProduct(queryRoute, cdc),
+			GetCmdQueryProductUnits(queryRoute, cdc),
+			GetCmdQueryUnit(queryRoute, cdc),
+			GetCmdQueryUnitTrace(queryRoute, cdc),
+			GetCmdQueryUnitComponents(queryRoute, cdc),
 		)...,
 	)
 
@@ -80,6 +85,116 @@ func GetCmdQueryOrganizations(queryRoute string, cdc *codec.Codec) *cobra.Comman
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryOrganizations), nil)
 			if err != nil {
 				fmt.Printf("could not resolve %s \n", types.QueryOrganizations)
+				return nil
+			}
+
+			var out []types.Organization
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// TODO
+func GetCmdQueryProduct(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "product [product-name]",
+		Short: "Query product description",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return nil
+			}
+
+			var out []types.Organization
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// TODO
+func GetCmdQueryProductUnits(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "product-units [product-name]",
+		Short: "Query all the units of a product",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return nil
+			}
+
+			var out []types.Organization
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// TODO
+func GetCmdQueryUnit(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "unit [unit-reference]",
+		Short: "Query unit description",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return nil
+			}
+
+			var out []types.Organization
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// TODO
+func GetCmdQueryUnitTrace(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "unit-trace [unit-reference]",
+		Short: "Query the history of all the holding organizations of the unit",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return nil
+			}
+
+			var out []types.Organization
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// TODO
+func GetCmdQueryUnitComponents(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "unit-components [unit-reference]",
+		Short: "Query the descriptions of all the components composing the unit",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProduct)
 				return nil
 			}
 

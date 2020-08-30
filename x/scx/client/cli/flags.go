@@ -7,6 +7,7 @@ import (
 const (
 	FlagOrganizationDescription = "organization-description"
 	FlagProductDescription      = "product-description"
+	FlagUnitDetails             = "unit-details"
 )
 
 func FlagSetOrganizationDescriptionCreate() *flag.FlagSet {
@@ -21,6 +22,14 @@ func FlagSetProductDescriptionCreate() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
 	fs.String(FlagProductDescription, "", "The description of the product")
+
+	return fs
+}
+
+func FlagSetUnitDetailsCreate() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+
+	fs.String(FlagUnitDetails, "", "The details of an unit")
 
 	return fs
 }
