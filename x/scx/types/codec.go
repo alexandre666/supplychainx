@@ -6,9 +6,11 @@ import (
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgAppendOrganization{}, "poa/MsgAppendOrganization", nil)
-	cdc.RegisterConcrete(MsgChangeOrganizationApproval{}, "poa/MsgChangeOrganizationApproval", nil)
-	cdc.RegisterConcrete(MsgCreateProduct{}, "poa/MsgCreateProduct", nil)
+	cdc.RegisterConcrete(MsgAppendOrganization{}, "scx/MsgAppendOrganization", nil)
+	cdc.RegisterConcrete(MsgChangeOrganizationApproval{}, "scx/MsgChangeOrganizationApproval", nil)
+	cdc.RegisterConcrete(MsgCreateProduct{}, "scx/MsgCreateProduct", nil)
+	cdc.RegisterConcrete(MsgCreateUnit{}, "scx/MsgCreateUnit", nil)
+	cdc.RegisterConcrete(MsgTransferUnit{}, "scx/MsgTransferUnit", nil)
 }
 
 // ModuleCdc defines the module codec
