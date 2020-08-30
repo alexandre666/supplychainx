@@ -156,24 +156,81 @@ func handleMsgCreateProduct(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreat
 }
 
 func handleMsgCreateUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateUnit) (*sdk.Result, error) {
-	// TODO
-
-	// Check the manufacturer exists and is approved
+	// The manufacturer must be approved
+	organization, found := k.GetOrganization(ctx, msg.Manufacturer)
+	if !found {
+		return nil, types.ErrOrganizationNotFound
+	}
+	if !organization.IsApproved() {
+		return nil, types.ErrOrganizationNotApproved
+	}
 
 	// Check the product exists
+	product, found := k.GetProduct(ctx, msg.ProductName)
+	if !found {
+		return nil, types.ErrProductNotFound
+	}
+
+	// Check the organization is the manufacturer of the product
+	if !product.GetManufacturer().Equals(msg.Manufacturer) {
+		return nil, types.ErrInvalidOrganization
+	}
+
+	// Compute the reference of the product
+	unitNumber := product.GetUnitCount()
+	reference, err := types.GetUnitReferenceFromProductAndUnitNumber(msg.ProductName, uint(unitNumber))
+	if err != nil {
+		return nil, types.ErrInvalidUnit
+	}
 
 	// Check all components exist, the manufacturer own them and they are not already "component of"
+	for _, compRef := range msg.Components {
+		// Check the component exists
+		component, found := k.GetUnit(ctx, compRef)
+		if !found {
+			return nil, types.ErrUnitNotFound
+		}
 
-	// The the "component of" field of the component
+		// Check the manufacturer own the unit
+		if !component.GetCurrentHolder().Equals(msg.Manufacturer) {
+			return nil, types.ErrComponentNotOwned
+		}
 
-	// Compute unit reference and store it
+		if component.IsComponentOf() {
+			return nil, types.ErrUnitComponentOfAnotherUnit
+		}
 
-	// Increment product count
+		// The the "component of" field of the component
+		component.ComponentOf = reference
+		k.SetUnit(ctx, component)
+	}
+
+	// Create the unit
+	unit := types.NewUnit(reference, product, msg.Details, msg.Components)
+	alreadyExist := k.AppendUnit(ctx, unit)
+	if alreadyExist {
+		// Panic if the unit already exists (this should never be the case since the reference is computed for the unit number)
+		panic(fmt.Sprintf("The unit %v already exists", reference))
+	}
+
+	// Increment the count of unit of the product
+	k.IncreaseProductCount(ctx, msg.ProductName)
 
 	// Emit event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateProduct,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyReference, reference),
+			sdk.NewAttribute(types.AttributeKeyProduct, msg.ProductName),
+		),
+	})
 
-	// RETURN THE REFERENCE AS RETURN VALUE
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	// Return the reference
+	return &sdk.Result{
+		Data:   types.ModuleCdc.MustMarshalBinaryLengthPrefixed(reference),
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 func handleMsgTransferUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferUnit) (*sdk.Result, error) {

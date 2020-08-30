@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -192,7 +193,6 @@ func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
 }
 
 // Create a new unit of an existing product
-// TODO
 func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-unit [product-name] [components] [flags]",
@@ -209,12 +209,16 @@ func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Account address empty")
 			}
 
+			// Get detail from flag
 			details, _ := cmd.Flags().GetString(FlagUnitDetails)
 
-			// Create product
-			product := types.NewProduct(accAddress, args[0], details)
+			// Product
+			product := args[0]
 
-			msg := types.NewMsgCreateProduct(product)
+			// Get list of components
+			components := strings.Split(args[1], ",")
+
+			msg := types.NewMsgCreateUnit(product, accAddress, details, components)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

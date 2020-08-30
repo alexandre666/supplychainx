@@ -18,5 +18,7 @@ var (
 	ErrInvalidTransfer              = sdkerrors.Register(ModuleName, 11, "invalid transfer")
 	ErrUnitNotFound                 = sdkerrors.Register(ModuleName, 12, "unit not found")
 	ErrUnitComponentOfAnotherUnit   = sdkerrors.Register(ModuleName, 13, "unit the unit is component of another unit")
-	EreComponentOfNotFound          = sdkerrors.Register(ModuleName, 14, "the component reference has been not found")
+	ErrComponentOfNotFound          = sdkerrors.Register(ModuleName, 14, "the component reference has been not found")
+	ErrProductNotFound              = sdkerrors.Register(ModuleName, 15, "product not found")
+	ErrComponentNotOwned            = sdkerrors.Register(ModuleName, 16, "component is not owned by the manufacturer")
 )
