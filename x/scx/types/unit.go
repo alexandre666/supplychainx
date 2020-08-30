@@ -40,12 +40,42 @@ func NewUnit(reference string, product Product, details string, components []str
 	}
 }
 
-// TODO: Other functions
-
+// Accessors
+func (u Unit) GetReference() string {
+	return u.Reference
+}
+func (u Unit) GetProductName() string {
+	return u.Product
+}
+func (u Unit) GetDetails() string {
+	return u.Details
+}
+func (u Unit) GetComponents() []string {
+	return u.Components
+}
 func (u Unit) GetCurrentHolder() sdk.AccAddress {
 	return u.Holder
 }
+func (u Unit) GetCurrentHolderHistrory() []sdk.AccAddress {
+	return u.HolderHistory
+}
+func (u Unit) GetComponentOf() string {
+	return u.ComponentOf
+}
+func (u Unit) IsComponentOf() bool {
+	return u.ComponentOf != ""
+}
 
+// Change holder
+func (u *Unit) ChangeHolder(newHolder sdk.AccAddress) {
+	// Push holder in holder history
+	u.HolderHistory = append(u.HolderHistory, u.Holder)
+
+	// Update holder
+	u.Holder = newHolder
+}
+
+// Check unit structure validity
 func (u Unit) Validate() error {
 	if len(u.Holder) != UnitReferenceLength {
 		return sdkerrors.Wrap(ErrInvalidUnit, "invalid reference")
