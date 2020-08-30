@@ -14,4 +14,6 @@ var (
 	ErrInvalidProduct               = sdkerrors.Register(ModuleName, 7, "invalid product")
 	ErrOrganizationNotApproved      = sdkerrors.Register(ModuleName, 8, "the orfanization is not approved")
 	ErrProductAlreadyExist          = sdkerrors.Register(ModuleName, 9, "the product already exist")
+	ErrInvalidUnit                  = sdkerrors.Register(ModuleName, 10, "invalid unit")
+	ErrInvalidTransfer              = sdkerrors.Register(ModuleName, 11, "invalid transfer")
 )
