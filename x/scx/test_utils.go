@@ -105,7 +105,8 @@ func MockAccAddress() sdk.AccAddress {
 }
 
 // Create a mock unit
-func MockUnit() types.Unit {
-	// TODO
-	return types.Unit{}
+func MockUnit(product types.Product, unitNumber uint, components []string) types.Unit {
+	ref, _ := types.GetUnitReferenceFromProductAndUnitNumber(product.GetName(), unitNumber)
+	unit := types.NewUnit(ref, product, "Perfectly manufactured", components)
+	return unit
 }

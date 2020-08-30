@@ -57,7 +57,7 @@ func (u Unit) GetComponents() []string {
 func (u Unit) GetCurrentHolder() sdk.AccAddress {
 	return u.Holder
 }
-func (u Unit) GetCurrentHolderHistrory() []sdk.AccAddress {
+func (u Unit) GetHolderHistrory() []sdk.AccAddress {
 	return u.HolderHistory
 }
 func (u Unit) GetComponentOf() string {
