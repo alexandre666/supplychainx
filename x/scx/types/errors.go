@@ -11,4 +11,5 @@ var (
 	ErrOrganizationNotFound         = sdkerrors.Register(ModuleName, 4, "organization not found")
 	ErrOrganizationAlreadyApproved  = sdkerrors.Register(ModuleName, 5, "organization already approved")
 	ErrOrganizationAlreadyRelegated = sdkerrors.Register(ModuleName, 6, "organization already relegated")
+	ErrInvalidProduct               = sdkerrors.Register(ModuleName, 7, "invalid product")
 )
