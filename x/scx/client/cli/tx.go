@@ -234,10 +234,9 @@ func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 }
 
 // Transfer a product unit to a new organization
-// TODO
 func GetCmdTransferUnit(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "transfer-unit [unit-reference][new-holder]",
+		Use:   "transfer-unit [unit-reference] [new-holder]",
 		Short: "Transer a unit to a new organization",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -251,13 +250,14 @@ func GetCmdTransferUnit(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Account address empty")
 			}
 
-			description, _ := cmd.Flags().GetString(FlagOrganizationDescription)
+			// Get new holder address
+			newHolderAddr, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
 
-			// Create product
-			product := types.NewProduct(accAddress, args[0], description)
-
-			msg := types.NewMsgCreateProduct(product)
-			err := msg.ValidateBasic()
+			msg := types.NewMsgTransferUnit(args[0], accAddress, newHolderAddr)
+			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}

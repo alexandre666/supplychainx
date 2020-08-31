@@ -179,7 +179,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg := types.NewMsgCreateUnit(productName, notAnOrganization, "", []string{})
 	_, err := handler(ctx, msg)
 	if err.Error() != types.ErrOrganizationNotFound.Error() {
-		t.Errorf("MsgCreateUnit with non existing manufacturer should fail")
+		t.Errorf("MsgCreateUnit with non existing manufacturer should fail: %v", err)
 	}
 
 	// Cannot create if the manufacturer is relegated
@@ -200,7 +200,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg = types.NewMsgCreateUnit(otherProduct.GetName(), orgAddress, "", []string{})
 	_, err = handler(ctx, msg)
 	if err.Error() != types.ErrInvalidOrganization.Error() {
-		t.Errorf("MsgCreateUnit with invalid manufacturer should fail")
+		t.Errorf("MsgCreateUnit with invalid manufacturer should fail: %v", err)
 	}
 
 	// Cannot create if the product doesn't exist
@@ -208,7 +208,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg = types.NewMsgCreateUnit(inexistantProduct.GetName(), orgAddress, "", []string{})
 	_, err = handler(ctx, msg)
 	if err.Error() != types.ErrProductNotFound.Error() {
-		t.Errorf("MsgCreateUnit with non existing product should fail")
+		t.Errorf("MsgCreateUnit with non existing product should fail: %v", err)
 	}
 
 	// Cannot create if a component doesn't exist
@@ -216,7 +216,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{inexistantRef})
 	_, err = handler(ctx, msg)
 	if err.Error() != types.ErrUnitNotFound.Error() {
-		t.Errorf("MsgCreateUnit with non existing component should fail")
+		t.Errorf("MsgCreateUnit with non existing component should fail: %v", err)
 	}
 
 	// Cannot create if a component is not owned
@@ -225,7 +225,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{notOwnedUnit.GetReference()})
 	_, err = handler(ctx, msg)
 	if err.Error() != types.ErrComponentNotOwned.Error() {
-		t.Errorf("MsgCreateUnit with not owned component should fail")
+		t.Errorf("MsgCreateUnit with not owned component should fail: %v", err)
 	}
 
 	// Cannot create if a component is already component of another unit
@@ -235,7 +235,7 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 	msg = types.NewMsgCreateUnit(productName, orgAddress, "", []string{unitAlreadyComponent.GetReference()})
 	_, err = handler(ctx, msg)
 	if err.Error() != types.ErrUnitComponentOfAnotherUnit.Error() {
-		t.Errorf("MsgCreateUnit with a component already used should fail")
+		t.Errorf("MsgCreateUnit with a component already used should fail: %v", err)
 	}
 
 	// Can create a new unit
@@ -278,25 +278,95 @@ func TestHandleMsgCreateUnit(t *testing.T) {
 }
 
 func TestHandleMsgTransferUnit(t *testing.T) {
-	// TODO
+	ctx, scxKeeper, _ := scx.MockContext()
+	organization := scx.MockOrganization()
+	orgAddress := organization.GetAddress()
+	organization2 := scx.MockOrganization()
+	orgAddress2 := organization2.GetAddress()
+	product := types.NewProduct(orgAddress, "xphone", "A revolutionary phone")
+	handler := scx.NewHandler(scxKeeper)
+	unit := scx.MockUnit(product, 0, []string{})
+	ref := unit.GetReference()
+
+	scxKeeper.AppendProduct(ctx, product)
+	scxKeeper.AppendUnit(ctx, unit)
 
 	// Cannot transfer if the holder doesn't exist
+	notAnOrganization := scx.MockAccAddress()
+	msg := types.NewMsgTransferUnit(ref, notAnOrganization, orgAddress2)
+	_, err := handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotFound.Error() {
+		t.Errorf("MsgTransferUnit with non existing holder should fail: %v", err)
+	}
 
 	// Cannot transfer if the holder is relegated
+	organization.Relegate()
+	scxKeeper.SetOrganization(ctx, organization)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotApproved.Error() {
+		t.Errorf("MsgTransferUnit with relegated holder should fail: %v", err)
+	}
 
 	// Cannot transfer if the new holder doesn't exist
+	organization.Approve()
+	scxKeeper.SetOrganization(ctx, organization)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, notAnOrganization)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotFound.Error() {
+		t.Errorf("MsgTransferUnit with non existing new holder should fail: %v", err)
+	}
 
 	// Cannot transfer if the new holder is relegated
+	organization2.Relegate()
+	scxKeeper.SetOrganization(ctx, organization2)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrOrganizationNotApproved.Error() {
+		t.Errorf("MsgTransferUnit with relegated new holder should fail: %v", err)
+	}
 
 	// Cannot transfer if the unit doesn't exist
+	organization2.Approve()
+	scxKeeper.SetOrganization(ctx, organization2)
+	notExistingUnit := scx.MockUnit(product, 1, []string{})
+	msg = types.NewMsgTransferUnit(notExistingUnit.GetReference(), orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrUnitNotFound.Error() {
+		t.Errorf("MsgTransferUnit with non existing unit should fail : %v", err)
+	}
 
 	// Cannot transfer if the holder doesn't own the unit
+	unit.ChangeHolder(notAnOrganization)
+	scxKeeper.SetUnit(ctx, unit)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrUnitNotOwned.Error() {
+		t.Errorf("MsgTransferUnit with non owned unit should fail: %v", err)
+	}
 
 	// Cannot transfer if the unit is a component of another unit
+	unit.ChangeHolder(orgAddress)
+	unit.ComponentOf = "aaaaaaaaaaaaaaaa"
+	scxKeeper.SetUnit(ctx, unit)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err.Error() != types.ErrUnitComponentOfAnotherUnit.Error() {
+		t.Errorf("MsgTransferUnit with unit component of another unit should fail: %v", err)
+	}
 
 	// Can transfer the unit
+	unit.ComponentOf = ""
+	scxKeeper.SetUnit(ctx, unit)
+	msg = types.NewMsgTransferUnit(ref, orgAddress, orgAddress2)
+	_, err = handler(ctx, msg)
+	if err != nil {
+		t.Errorf("MsgTransferUnit unexpected error: %v", err)
+	}
 
 	// The holder is update
-
-	// The holder history is updated
+	retrieved, _ := scxKeeper.GetUnit(ctx, ref)
+	if !retrieved.GetCurrentHolder().Equals(orgAddress2) {
+		t.Errorf("MsgTransferUnit new holder should be %v, got %v", orgAddress2, retrieved.GetCurrentHolder())
+	}
 }

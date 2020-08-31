@@ -234,17 +234,51 @@ func handleMsgCreateUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateUn
 }
 
 func handleMsgTransferUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferUnit) (*sdk.Result, error) {
-	// TODO
-
 	// Check the holder exists and is approved
+	holder, found := k.GetOrganization(ctx, msg.Holder)
+	if !found {
+		return nil, types.ErrOrganizationNotFound
+	}
+	if !holder.IsApproved() {
+		return nil, types.ErrOrganizationNotApproved
+	}
 
 	// Check the new holder exists and is approved
+	newHolder, found := k.GetOrganization(ctx, msg.NewHolder)
+	if !found {
+		return nil, types.ErrOrganizationNotFound
+	}
+	if !newHolder.IsApproved() {
+		return nil, types.ErrOrganizationNotApproved
+	}
 
 	// Check the unit exists, the holder owns it and it is not "component of"
+	unit, found := k.GetUnit(ctx, msg.UnitReference)
+	if !found {
+		return nil, types.ErrUnitNotFound
+	}
+	if !unit.GetCurrentHolder().Equals(msg.Holder) {
+		return nil, types.ErrUnitNotOwned
+	}
+	if unit.IsComponentOf() {
+		// If the unit is component of another unit, it cannot be transfered anymore
+		return nil, types.ErrUnitComponentOfAnotherUnit
+	}
 
 	// Update new hodler
+	unit.ChangeHolder(msg.NewHolder)
+	k.SetUnit(ctx, unit)
 
 	// Emit events
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateProduct,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyReference, msg.UnitReference),
+			sdk.NewAttribute(types.AttributeKeyFrom, msg.Holder.String()),
+			sdk.NewAttribute(types.AttributeKeyTo, msg.NewHolder.String()),
+		),
+	})
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

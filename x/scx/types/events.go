@@ -7,6 +7,7 @@ const (
 	EventTypeReapproveOrganization = "reapprove_organization"
 	EventTypeCreateProduct         = "create_product"
 	EventTypeCreateUnit            = "create_unit"
+	EventTypeTransferUnit          = "transfer_unit"
 
 	AttributeKeyAuthority           = "authority"
 	AttributeKeyOrganizationAddress = "organization_address"
@@ -14,6 +15,8 @@ const (
 	AttributeKeyManufacturer        = "manufacturer"
 	AttributeKeyProduct             = "product"
 	AttributeKeyReference           = "reference"
+	AttributeKeyFrom                = "reference"
+	AttributeKeyTo                  = "reference"
 
 	AttributeValueCategory = ModuleName
 )
