@@ -11,7 +11,7 @@ const (
 
 	AttributeKeyAuthority           = "authority"
 	AttributeKeyOrganizationAddress = "organization_address"
-	AttributeKeyOrganizationName    = "Organization_name"
+	AttributeKeyOrganizationName    = "organization_name"
 	AttributeKeyManufacturer        = "manufacturer"
 	AttributeKeyProduct             = "product"
 	AttributeKeyReference           = "reference"
