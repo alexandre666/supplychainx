@@ -15,8 +15,8 @@ const (
 	AttributeKeyManufacturer        = "manufacturer"
 	AttributeKeyProduct             = "product"
 	AttributeKeyReference           = "reference"
-	AttributeKeyFrom                = "reference"
-	AttributeKeyTo                  = "reference"
+	AttributeKeyFrom                = "from"
+	AttributeKeyTo                  = "to"
 
 	AttributeValueCategory = ModuleName
 )

@@ -182,7 +182,7 @@ func NewInitApp(
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		poa.NewAppModule(app.poaKeeper, app.accountKeeper),
+		poa.NewAppModule(app.poaKeeper),
 		scx.NewAppModule(app.scxKeeper, app.poaKeeper),
 	)
 
