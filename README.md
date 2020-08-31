@@ -35,15 +35,28 @@ This is an example with 5 organizations and 3 authorities:
 
 The following queries are available to consult the supply chain and get information about product:
 
-- `organizations` : Get the list of all organizations
-- `organization` : Describe an organization
-- `product` : Describe a product
-- `product-units` : Get the list of all units of the product
-- `unit` : Describe a unit
-- `unit-trace` : Get all the organizations the unit passed through
-- `unit-components` : Get all the product units composing a unit
+- `organizations`   Get the list of all organizations
+- `organization`    Describe an organization
+- `product`         Describe a product
+- `product-units`   Get the list of all units of the product
+- `unit`            Describe a unit
+- `unit-trace`      Get all the organizations the unit passed through
+- `unit-components` Get all the product units composing a unit
 
 They can be called with the command `scxcli query scx <query>`
+
+## Transactions
+
+The following transactions are available to interact with the supply chain
+
+- `append-organization`    Append a new organization to interact with the ledger
+- `relegate-organization`  Relegate an organization to prevent it to interact with the ledger
+- `reapprove-organization` Reapprove a relegated organization
+- `create-product`         Create a new product
+- `create-unit`            Create a new unit of a product
+- `transfer-unit`          Transer a unit to a new organization
+
+They can be called with the command `scxcli tx scx <tx>`
 
 ## Technical specifications
 
