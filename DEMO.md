@@ -1,4 +1,21 @@
-# DEMO
+# Testing the application
+
+The application is composed of the following:
+- `scxd` the daemon node that runs the blockchain
+- `scxcli` a cli client that interacts with the blockchain and store accounts
+
+The demonstration uses Docker containers to represent daemon nodes while the cli is installed used locally.
+
+You can install the application with the following instructions:
+
+```
+cd $GOPATH/src/github.com
+mkdir ltacker
+cd ltacker
+git clone https://github.com/ltacker/supplychainx.git
+cd supplychainx
+make
+```
 
 ## Test Environment
 
