@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -45,6 +47,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 func queryOrganizations(ctx sdk.Context, k Keeper) ([]byte, error) {
 	organizations := k.GetAllOrganizations(ctx)
 
+	// Encode response
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, organizations)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
@@ -67,6 +70,7 @@ func queryOrganization(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 		return nil, types.ErrOrganizationNotFound
 	}
 
+	// Encode response
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, organization)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
@@ -76,7 +80,6 @@ func queryOrganization(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 }
 
 func queryProduct(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	// TODO
 	var params types.QueryProductParams
 
 	// Unmarschal request
@@ -85,11 +88,21 @@ func queryProduct(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, err
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	return nil, nil
+	product, found := k.GetProduct(ctx, params.ProductName)
+	if !found {
+		return nil, types.ErrProductNotFound
+	}
+
+	// Encode response
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, product)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }
 
 func queryProductUnits(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	// TODO
 	var params types.QueryProductParams
 
 	// Unmarschal request
@@ -99,16 +112,40 @@ func queryProductUnits(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 	}
 
 	// Get the product count
+	product, found := k.GetProduct(ctx, params.ProductName)
+	if !found {
+		return nil, types.ErrProductNotFound
+	}
+	productCount := product.GetUnitCount()
+
+	var productUnits []types.Unit
 
 	// Compute unit reference
+	var i uint
+	for i = 0; i < uint(productCount); i++ {
+		unitRef, err := types.GetUnitReferenceFromProductAndUnitNumber(params.ProductName, i)
+		if err != nil {
+			panic(fmt.Sprintf("Unexpected error computing a unit reference: %v, %v", params.ProductName, i, err))
+		}
 
-	// Retrieve unit
+		// Retrieve the unit
+		unit, found := k.GetUnit(ctx, unitRef)
+		if !found {
+			panic(fmt.Sprintf("The unit reference %v is referenced but the unit doesn't exist", unitRef))
+		}
+		productUnits = append(productUnits, unit)
+	}
 
-	return nil, nil
+	// Encode response
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, productUnits)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }
 
 func queryUnit(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	// TODO
 	var params types.QueryUnitParams
 
 	// Unmarschal request
@@ -117,13 +154,22 @@ func queryUnit(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	// Get unit
+	// Retrieve the unit
+	unit, found := k.GetUnit(ctx, params.UnitReference)
+	if !found {
+		return nil, types.ErrUnitNotFound
+	}
 
-	return nil, nil
+	// Encode response
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, unit)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }
 
 func queryUnitTrace(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	// TODO
 	var params types.QueryUnitParams
 
 	// Unmarschal request
@@ -132,15 +178,35 @@ func queryUnitTrace(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, e
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	// Get all the holder
+	// Get the unit trace
+	trace, found := k.GetUnitTrace(ctx, params.UnitReference)
+	if !found {
+		return nil, types.ErrUnitNotFound
+	}
 
-	// Retrieve the organization from the address
+	var organizations []types.Organization
 
-	return nil, nil
+	// Retrieve the organization for each address
+	for _, orgAddr := range trace {
+		// Get the organization
+		org, found := k.GetOrganization(ctx, orgAddr)
+		if !found {
+			panic(fmt.Sprintf("The organization of address %v is referenced in a unit but doesn't exist", orgAddr))
+		}
+
+		organizations = append(organizations, org)
+	}
+
+	// Encode response
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, organizations)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }
 
 func queryUnitComponents(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	// TODO
 	var params types.QueryUnitParams
 
 	// Unmarschal request
@@ -150,6 +216,16 @@ func queryUnitComponents(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]by
 	}
 
 	// Get all components
+	comps, found := k.GetUnitComponents(ctx, params.UnitReference)
+	if !found {
+		return nil, types.ErrUnitNotFound
+	}
 
-	return nil, nil
+	// Encode response
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, comps)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }
