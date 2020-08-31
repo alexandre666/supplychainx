@@ -172,7 +172,7 @@ external_address = ""
 seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "8545e9ece6bd63876d06ae51c9a28238b9ce729b@validator_node:26656"
+persistent_peers = "8545e9ece6bd63876d06ae51c9a28238b9ce729b@192.168.10.2:26656"
 
 # UPNP port forwarding
 upnp = false
@@ -218,7 +218,7 @@ pex = true
 seed_mode = false
 
 # Comma separated list of peer IDs to keep private (will not be gossiped to other peers)
-private_peer_ids = "8545e9ece6bd63876d06ae51c9a28238b9ce729b"
+private_peer_ids = ""
 
 # Toggle to disable guard against peers connecting from the same ip.
 allow_duplicate_ip = true

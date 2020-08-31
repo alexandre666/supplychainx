@@ -6,11 +6,60 @@ services:
       dockerfile: test_validator.Dockerfile
     ports:
       - "26657:26657"
-  node:
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.2
+    environment:
+      - MONIKER=validator
+  node1:
     build:
       context: .
       dockerfile: test.Dockerfile
-    links: 
-      - "validator_node"
     depends_on:
       - validator_node
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.3
+    environment:
+      - MONIKER=test1
+  node2:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    depends_on:
+      - validator_node
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.4
+    environment:
+      - MONIKER=test2
+  node3:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    depends_on:
+      - validator_node
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.5
+    environment:
+      - MONIKER=test3
+  node4:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    depends_on:
+      - validator_node
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.6
+    environment:
+      - MONIKER=test4
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      -
+        subnet: 192.168.10.0/16

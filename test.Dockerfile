@@ -17,11 +17,11 @@ RUN make install
 # Listening port
 EXPOSE 26656
 
-# Initialize
-RUN scxd init moniker --chain-id testnet
-
 # Import custom config
+ADD test_env/start_node.sh .
 ADD test_env/config.toml /root/.scxd/config/
 ADD test_env/genesis.json /root/.scxd/config/
 
-ENTRYPOINT [ "scxd", "start" ]
+RUN chmod +x ./start_node.sh
+
+ENTRYPOINT [ "./start_node.sh" ]

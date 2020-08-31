@@ -29,7 +29,7 @@
           "operator_address": "cosmosvaloper1g7zvz09eyawjqhc95fyjdtj2paqmscfxk767cd",
           "consensus_pubkey": "cosmosvalconspub1zcjduepqs53kvv8mkecwjl8zxu09fl6x83vnsncxc0ultle7y5ygf70nrqnqsxslwv",
           "description": {
-            "moniker": "jack"
+            "moniker": "validator"
           }
         }
       ]
@@ -62,6 +62,21 @@
           "type": "cosmos-sdk/Account",
           "value": {
             "address": "cosmos1d6ygahd78ftmm9c2u9n9lhu6m3d39l74qwdklr",
+            "coins": [
+              {
+                "denom": "stake",
+                "amount": "100000000"
+              }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+          }
+        },
+        {
+          "type": "cosmos-sdk/Account",
+          "value": {
+            "address": "cosmos19ywsweqdwd2nwyaqlvdz5xcp8vfpp0qv0dfaxv",
             "coins": [
               {
                 "denom": "stake",
