@@ -95,7 +95,6 @@ func GetCmdQueryOrganizations(queryRoute string, cdc *codec.Codec) *cobra.Comman
 	}
 }
 
-// TODO
 func GetCmdQueryProduct(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "product [product-name]",
@@ -104,20 +103,26 @@ func GetCmdQueryProduct(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			// Get product name
+			params := types.NewQueryProductParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
+			if err != nil {
+				return err
+			}
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), bz)
 			if err != nil {
 				fmt.Printf("could not resolve %s \n", types.QueryProduct)
 				return nil
 			}
 
-			var out []types.Organization
+			var out types.Product
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},
 	}
 }
 
-// TODO
 func GetCmdQueryProductUnits(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "product-units [product-name]",
@@ -126,20 +131,26 @@ func GetCmdQueryProductUnits(queryRoute string, cdc *codec.Codec) *cobra.Command
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			// Get product name
+			params := types.NewQueryProductParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
-				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return err
+			}
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProductUnits), bz)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryProductUnits)
 				return nil
 			}
 
-			var out []types.Organization
+			var out []types.Unit
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},
 	}
 }
 
-// TODO
 func GetCmdQueryUnit(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "unit [unit-reference]",
@@ -148,20 +159,26 @@ func GetCmdQueryUnit(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			// Get unit reference
+			params := types.NewQueryUnitParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
-				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return err
+			}
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryUnit), bz)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryUnit)
 				return nil
 			}
 
-			var out []types.Organization
+			var out types.Unit
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},
 	}
 }
 
-// TODO
 func GetCmdQueryUnitTrace(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "unit-trace [unit-reference]",
@@ -170,9 +187,16 @@ func GetCmdQueryUnitTrace(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			// Get unit reference
+			params := types.NewQueryUnitParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
-				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return err
+			}
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryUnitTrace), bz)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryUnitTrace)
 				return nil
 			}
 
@@ -183,7 +207,6 @@ func GetCmdQueryUnitTrace(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// TODO
 func GetCmdQueryUnitComponents(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "unit-components [unit-reference]",
@@ -192,13 +215,20 @@ func GetCmdQueryUnitComponents(queryRoute string, cdc *codec.Codec) *cobra.Comma
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryProduct), nil)
+			// Get unit reference
+			params := types.NewQueryUnitParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
-				fmt.Printf("could not resolve %s \n", types.QueryProduct)
+				return err
+			}
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryUnitComponents), bz)
+			if err != nil {
+				fmt.Printf("could not resolve %s \n", types.QueryUnitComponents)
 				return nil
 			}
 
-			var out []types.Organization
+			var out []types.Unit
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

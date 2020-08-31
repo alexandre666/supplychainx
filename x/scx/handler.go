@@ -219,7 +219,7 @@ func handleMsgCreateUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreateUn
 	// Emit event
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeCreateProduct,
+			types.EventTypeCreateUnit,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(types.AttributeKeyReference, reference),
 			sdk.NewAttribute(types.AttributeKeyProduct, msg.ProductName),
@@ -272,7 +272,7 @@ func handleMsgTransferUnit(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransf
 	// Emit events
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeCreateProduct,
+			types.EventTypeTransferUnit,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(types.AttributeKeyReference, msg.UnitReference),
 			sdk.NewAttribute(types.AttributeKeyFrom, msg.Holder.String()),

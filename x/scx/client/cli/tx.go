@@ -172,7 +172,7 @@ func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Account address empty")
 			}
 
-			description, _ := cmd.Flags().GetString(FlagOrganizationDescription)
+			description, _ := cmd.Flags().GetString(FlagProductDescription)
 
 			// Create product
 			product := types.NewProduct(accAddress, args[0], description)
@@ -187,7 +187,7 @@ func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().AddFlagSet(FlagSetOrganizationDescriptionCreate())
+	cmd.Flags().AddFlagSet(FlagSetProductDescriptionCreate())
 
 	return cmd
 }
@@ -195,7 +195,7 @@ func GetCmdCreateProduct(cdc *codec.Codec) *cobra.Command {
 // Create a new unit of an existing product
 func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-unit [product-name] [components] [flags]",
+		Use:   "create-unit [product-name] [flags]",
 		Short: "Create a new unit of a product",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -212,11 +212,15 @@ func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 			// Get detail from flag
 			details, _ := cmd.Flags().GetString(FlagUnitDetails)
 
+			// Get components from flag
+			componentsString, _ := cmd.Flags().GetString(FlagUnitComponents)
+			var components []string
+			if componentsString != "" {
+				components = strings.Split(componentsString, ",")
+			}
+
 			// Product
 			product := args[0]
-
-			// Get list of components
-			components := strings.Split(args[1], ",")
 
 			msg := types.NewMsgCreateUnit(product, accAddress, details, components)
 			err := msg.ValidateBasic()
@@ -229,6 +233,7 @@ func GetCmdCreateUnit(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd.Flags().AddFlagSet(FlagSetUnitDetailsCreate())
+	cmd.Flags().AddFlagSet(FlagSetUnitComponentsCreate())
 
 	return cmd
 }
@@ -238,7 +243,7 @@ func GetCmdTransferUnit(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "transfer-unit [unit-reference] [new-holder]",
 		Short: "Transer a unit to a new organization",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())

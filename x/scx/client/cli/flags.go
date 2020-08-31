@@ -8,6 +8,7 @@ const (
 	FlagOrganizationDescription = "organization-description"
 	FlagProductDescription      = "product-description"
 	FlagUnitDetails             = "unit-details"
+	FlagUnitComponents          = "unit-components"
 )
 
 func FlagSetOrganizationDescriptionCreate() *flag.FlagSet {
@@ -30,6 +31,14 @@ func FlagSetUnitDetailsCreate() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
 	fs.String(FlagUnitDetails, "", "The details of an unit")
+
+	return fs
+}
+
+func FlagSetUnitComponentsCreate() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+
+	fs.String(FlagUnitComponents, "", "A comma separated list of the reference of the components of the unit")
 
 	return fs
 }
