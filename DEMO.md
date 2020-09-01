@@ -35,9 +35,9 @@ The application can be tested with several nodes with a test environment compose
 - `node_key.json` a node key file copied into the initial validator node to have a predefined node id for the validator
 - `testkey.json` a predefined private key for the validator, so that we can determine it in the genesis file
 - `config.toml` a customized config file for the nodes. This config define the validator node as a persistent peer with its node id
-- `genesis.json` a predefined genesis file with a validator and five accounts
+- `genesis.json` a predefined genesis file with a validator and six accounts
 
-The five accounts in the genesis file are the following:
+The six accounts in the genesis file are the following:
 
 ```
 [
@@ -90,6 +90,7 @@ The accounts can be imported locally with the commands:
 ```
 scxcli keys add regulatorA --recover
 scxcli keys add regulatorB --recover
+scxcli keys add regulatorC --recover
 scxcli keys add Acme --recover
 scxcli keys add HahaTransport --recover
 scxcli keys add HahaPhone --recover

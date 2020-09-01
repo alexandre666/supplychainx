@@ -11,7 +11,7 @@ require (
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/google/go-cmp v0.5.2
 	github.com/gorilla/mux v1.7.4
-	github.com/ltacker/poa v0.0.0-20200830071319-3c87d7d346bc
+	github.com/ltacker/poa v0.0.0-20200901074559-64257b47c18d
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect

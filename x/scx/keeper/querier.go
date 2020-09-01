@@ -125,7 +125,7 @@ func queryProductUnits(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte
 	for i = 0; i < uint(productCount); i++ {
 		unitRef, err := types.GetUnitReferenceFromProductAndUnitNumber(params.ProductName, i)
 		if err != nil {
-			panic(fmt.Sprintf("Unexpected error computing a unit reference: %v, %v", params.ProductName, i, err))
+			panic(fmt.Sprintf("Unexpected error computing a unit reference: %v, %v, %v", params.ProductName, i, err))
 		}
 
 		// Retrieve the unit

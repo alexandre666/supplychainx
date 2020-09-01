@@ -250,6 +250,8 @@ github.com/ltacker/poa v0.0.0-20200829100703-0c9e031d9cec h1:oWLQ/LNxUo/CKTq7x/5
 github.com/ltacker/poa v0.0.0-20200829100703-0c9e031d9cec/go.mod h1:swoWujUThrDkUb320TFSGkDlyszDQnLpu6WTJxwYVvc=
 github.com/ltacker/poa v0.0.0-20200830071319-3c87d7d346bc h1:7lqXYeIjNP64iJMrdjVDadhUVJmpbNfFBN+zd1n39jc=
 github.com/ltacker/poa v0.0.0-20200830071319-3c87d7d346bc/go.mod h1:swoWujUThrDkUb320TFSGkDlyszDQnLpu6WTJxwYVvc=
+github.com/ltacker/poa v0.0.0-20200901074559-64257b47c18d h1:0NcIx6g9aXVJhGQY/+sZ1e9OLazI6OYpEj6jIO/DR2s=
+github.com/ltacker/poa v0.0.0-20200901074559-64257b47c18d/go.mod h1:swoWujUThrDkUb320TFSGkDlyszDQnLpu6WTJxwYVvc=
 github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/magiconair/properties v1.8.1 h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzRKO2BQ4=
