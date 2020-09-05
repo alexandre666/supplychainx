@@ -27,7 +27,7 @@ All information and actions performed to a unit are immutably recorded in the bl
 
 ## Overview
 
-This is an example with 5 organizations and 3 authorities:
+This is an example with 6 organizations and 3 authorities:
 
 ![overview](./overview.png)
 
