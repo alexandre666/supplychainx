@@ -1,8 +1,6 @@
 PACKAGES=$(shell go list ./... | grep -v '/simulation')
 
 shell: all
-	git tag foo
-	git tag -a 'annotated-tag' -m 'whatever'
 	git init
 #	apt-get update
 
