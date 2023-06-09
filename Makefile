@@ -1,9 +1,9 @@
 PACKAGES=$(shell go list ./... | grep -v '/simulation')
 
-#shell: all
-#	git tag foo
-#	git tag -a 'annotated-tag' -m 'whatever'
-#	git init
+shell: all
+	git tag foo
+	git tag -a 'annotated-tag' -m 'whatever'
+	git init
 #	apt-get update
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
