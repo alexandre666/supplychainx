@@ -1,12 +1,18 @@
 PACKAGES=$(shell go list ./... | grep -v '/simulation')
 
+shell: all
+	git tag foo
+	git tag -a 'annotated-tag' -m 'whatever'
+	git init
+#	apt-get update
+
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 
 # TODO: Update the ldflags with the app, client & server names
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=NewApp \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=appd \
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=appcli \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=energy \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=Senergy \
+	-X github.com/cosmos/cosmos-sdk/version.ClientName=Cenergy \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
 
